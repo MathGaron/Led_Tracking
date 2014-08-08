@@ -57,7 +57,7 @@ class picam_tester:
         h=730
         d=50
         with sg.VAR_LOCK:
-           sg.CORR_DATA = proc.rectangleBuffers(30,15,[[500,200,300,300],[800,10,100,400]])
+           sg.CORR_DATA = proc.rectangleBuffers(30,26,[[500,200,300,300]])
         corr_thread = proc.TimeCorrelation()
         video_fps = self._process_video(proc.Correlation,processors = 3)
         self._get_chunk_time()
@@ -69,6 +69,7 @@ class picam_tester:
         #self._save_video(filename='correlation.avi',fps=video_fps)
         rospy.loginfo("Save Plot")
         plt.plot(sg.PLOT)
+        plt.plot(sg.PLOT2)
         plt.savefig('/home/CameraNetwork/July/plot.jpg')
         cv2.imwrite('/home/CameraNetwork/July/image.jpg',sg.PICTURE)
         rospy.loginfo("Ending service.")

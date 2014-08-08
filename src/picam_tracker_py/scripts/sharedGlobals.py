@@ -19,6 +19,7 @@ TIME_LIST = []
 
 VIDEO_MATRIX = np.zeros([_DEPTH + 1,_HEIGTH,_WIDTH],np.uint8)
 PLOT = []
+PLOT2 = []
 PICTURE = []
 PIXEL = [1,1]
 

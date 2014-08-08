@@ -27,6 +27,8 @@ class TimeCorrelation(threading.Thread):
         self.start()
 
     def run(self):
+        
+        template_norm = self._normalize_array(np.array([1,1,0,0,1,1,0,0,1,1,1,1,0,0,0,0]))
         while not self.terminated:
             if sg.CORR_DATA.isReady():
                 #start = time.time()
@@ -34,12 +36,32 @@ class TimeCorrelation(threading.Thread):
                     out = sg.CORR_DATA.getImage()
                 rect,buff = out[0]
                 d,h,w = buff.shape
-                sg.PLOT = buff[:,h/2,w/2]
-                cv2.circle(buff[0],(h/2,h/2), 10, 255, -1)
-                sg.PICTURE = buff[0]
+                signal = buff[:,h/2,w/2]
+                bad_signal = buff[:,1,1]
+                print np.amax(self._norm_correlate(template_norm,bad_signal[1:]))
+                print np.amax(self._norm_correlate(template_norm,signal[1:]))
+                print "\n"
+                if sg.PLOT == []:
+                    sg.PLOT = signal[1:]
+                    sg.PLOT2 = bad_signal[1:]
+                    cv2.circle(buff[0],(h/2,h/2), 10, 255, -1)
+                    sg.PICTURE = buff[0]
                 #print time.time() - start
             else:
                 time.sleep(0)
+
+    def _norm_correlate(self,normalizedTemplate,signal):
+        sumTemplate = normalizedTemplate.sum()
+
+        signalMean = np.mean(signal)
+        signalStd = np.std(signal)
+        conv = np.convolve(normalizedTemplate[::-1],signal, mode='valid')
+        result = (conv - sumTemplate * signalMean)/signalStd
+        return result
+
+    def _normalize_array(self,array):
+        return (array - np.mean(array)/(np.std(array)*len(array)))
+
 
 class ImageProcessor(threading.Thread):
     def __init__(self):
@@ -142,7 +164,7 @@ class Correlation(ImageProcessor):
                 try:
                     image = self.get_gray_image()
                     startTime = rospy.get_rostime()
-                    print startTime
+                    #print startTime.to_sec()
                     with sg.VAR_LOCK:
                         #sg.VIDEO_MATRIX[self.frame_id] = mask
                         sg.FRAME_COUNT += 1
