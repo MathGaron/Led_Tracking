@@ -14,6 +14,7 @@ import cv2
 import os
 import io
 import numpy as np
+#import pandas as pd
 import threading
 import time
 import correlationBuffer as cbuff
@@ -21,14 +22,14 @@ import sharedGlobals as sg
 
 
 class TimeCorrelation(threading.Thread):
-    def __init__(self):
+    def __init__(self,signal):
         super(TimeCorrelation,self).__init__()
         self.terminated = False
         self.start()
+        self.template_norm = self._normalize_array(signal)
 
     def run(self):
         
-        template_norm = self._normalize_array(np.array([1,1,0,0,1,1,0,0,1,1,1,1,0,0,0,0]))
         while not self.terminated:
             if sg.CORR_DATA.isReady():
                 #start = time.time()
@@ -38,21 +39,22 @@ class TimeCorrelation(threading.Thread):
                 d,h,w = buff.shape
                 signal = buff[:,h/2,w/2]
                 bad_signal = buff[:,1,1]
-                print np.amax(self._norm_correlate(template_norm,bad_signal[1:]))
-                print np.amax(self._norm_correlate(template_norm,signal[1:]))
-                print "\n"
-                if sg.PLOT == []:
-                    sg.PLOT = signal[1:]
-                    sg.PLOT2 = bad_signal[1:]
-                    cv2.circle(buff[0],(h/2,h/2), 10, 255, -1)
-                    sg.PICTURE = buff[0]
+                #print np.amax(self._norm_correlate(template_norm,bad_signal[1:-1]))
+                #print np.amax(self._norm_correlate(template_norm,signal[1:-1]))
+                #print "\n"
+                sg.PLOT = signal[1:]
+                sg.PLOT2 = bad_signal[1:]
+                cv2.circle(buff[0],(h/2,h/2), 10, 255, -1)
+                sg.PICTURE = buff[0]
                 #print time.time() - start
             else:
                 time.sleep(0)
 
     def _norm_correlate(self,normalizedTemplate,signal):
         sumTemplate = normalizedTemplate.sum()
-
+        templateSize = len(normalizedTemplate)
+        #signalMean = pd.rolling_mean(signal,templateSize)[templateSize - 1:]
+        #signalStd = pd.rolling_std(signal,templateSize)[templateSize - 1:]
         signalMean = np.mean(signal)
         signalStd = np.std(signal)
         conv = np.convolve(normalizedTemplate[::-1],signal, mode='valid')
@@ -164,7 +166,7 @@ class Correlation(ImageProcessor):
                 try:
                     image = self.get_gray_image()
                     startTime = rospy.get_rostime()
-                    #print startTime.to_sec()
+                    print startTime.to_sec()
                     with sg.VAR_LOCK:
                         #sg.VIDEO_MATRIX[self.frame_id] = mask
                         sg.FRAME_COUNT += 1

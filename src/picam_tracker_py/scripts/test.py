@@ -13,10 +13,14 @@ import time
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+import pandas as pd
 
 def norm_correlate(normalizedTemplate,signal):
     sumTemplate = normalizedTemplate.sum()
-
+    templateSize = len(normalizedTemplate)
+    #signalMean = pd.rolling_mean(signal,templateSize)[templateSize - 1:]
+    #signalStd = pd.rolling_std(signal,templateSize)[templateSize - 1:]
+    
     signalMean = np.mean(signal)
     signalStd = np.std(signal)
     conv = np.convolve(normalizedTemplate[::-1],signal, mode='valid')
@@ -32,17 +36,18 @@ if __name__ == "__main__":
     data3 = np.array([0,1,1,1,0,0,1,1,1,0,0,1,1,0,1,0,1,1,1])
     data4 = np.array([1,0,0,0,1])
     
-    normData = normalize_array(data3) 
+    normData = normalize_array(data4) 
     
     out = []
     start = time.time()
     i=0
-    #for i in range(len(data1)-4):
-    res = norm_correlate(normData,data1[i:i+5])
+    for i in range(100):
+        res = norm_correlate(normData,data1)
+    #print res
     #out = np.concatenate((out,res),axis=0)
     print time.time() - start
     #print data
     #print out
-    plt.plot(np.real(out))
-    plt.savefig('/home/CameraNetwork/July/plot.jpg')
-    print "saved"
+    #plt.plot(np.real(out))
+    #plt.savefig('/home/CameraNetwork/July/plot.jpg')
+    #print "saved"

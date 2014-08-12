@@ -2,3 +2,5 @@ build/*
 devel/*
 src/CMakeLists.txt
 .catkin_workspace
+*.pyc
+*.swp

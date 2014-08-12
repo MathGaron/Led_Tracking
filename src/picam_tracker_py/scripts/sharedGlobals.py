@@ -2,9 +2,10 @@ import numpy as np
 import threading
 
 #const
-_WIDTH = 1312
-_HEIGTH = 736
+_WIDTH = 1296
+_HEIGTH = 730
 _DEPTH = 30
+
 
 #algo datas:
 MU = []

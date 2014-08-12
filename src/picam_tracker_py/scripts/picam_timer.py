@@ -56,10 +56,11 @@ class picam_tester:
         w=1296
         h=730
         d=50
+        template_signal =np.array([1,1,0,0,1,1,0,0,1,1,1,1,0,0,0,0])
         with sg.VAR_LOCK:
-           sg.CORR_DATA = proc.rectangleBuffers(30,26,[[500,200,300,300]])
-        corr_thread = proc.TimeCorrelation()
-        video_fps = self._process_video(proc.Correlation,processors = 3)
+           sg.CORR_DATA = proc.rectangleBuffers(25,len(template_signal),[[250,200,200,200]])  #[[500,200,300,300]])
+        corr_thread = proc.TimeCorrelation(template_signal)
+        video_fps = self._process_video(proc.Correlation,w,h,d,processors = 3)
         self._get_chunk_time()
         with sg.VAR_LOCK:
             corr_thread.terminated = True
